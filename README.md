@@ -1,65 +1,86 @@
-# 🤖 RoboEyes: High-Frame-Rate GC9A01 Blinking System
+# 👁️ RoboEyes: High-Frame-Rate Blinking System
 
-An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040, featuring high-speed pupil tracking and blinking animations.
-
-<p align="center">
-  <img width="400" src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Display View" />
-</p>
+**RoboEyes** is a high-speed visual expression system. By pairing a **Raspberry Pi Pico (RP2040)** with dual **GC9A01 round LCDs**, it creates lifelike eye movement and autonomous blinking that bridges the gap between a machine and a face.
 
 ---
 
-## 🚀 The Backstory
+<table>
+  <tr>
+    <td width="60%">
+      <h2>🚀 The Backstory</h2>
+      <p>
+        Project "Uncanny Eyes" has long been the gold standard for robotic expressions, but it is notoriously resource-heavy. Porting it to the RP2040 often results in sluggish frame rates due to memory constraints.
+      </p>
+      <p>
+        I needed the eyes to look "alive," which requires fluid motion and instant response. By moving away from real-time procedural rendering and toward a <b>smart buffer manipulation</b> strategy, I achieved smooth, high-speed movement that rivals much more powerful processors.
+      </p>
+    </td>
+    <td width="40%">
+      <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Project View" />
+    </td>
+  </tr>
+</table>
 
-Project "Uncanny Eyes" has long been the gold standard for robotic expressions, but it is notoriously resource-heavy. While originally designed for the ESP32, porting it to the Raspberry Pi Pico (RP2040) often results in sluggish frame rates and screen tearing due to the Pico's memory constraints and SPI bus bottlenecks.
-
-I needed the eyes to look "alive," which requires fluid motion and instant response. By moving away from real-time procedural rendering and toward a **smart buffer manipulation** strategy, I achieved smooth, high-speed eye movement on the Pico that rivals much more powerful processors.
+---
 
 ## ✨ Key Features
 
 * **High-Speed Animation:** Uses a "Buffer-Pointer" technique to move pupils without re-drawing the entire frame, overcoming RP2040 RAM limits.
-* **Dual-Display Synchronization:** Drives two GC9A01 round LCDs simultaneously for a cohesive facial expression.
+* **Dual-Display Synchronization:** Drives two GC9A01 round LCDs simultaneously for a cohesive, synchronized facial expression.
+* **Natural Blinking Logic:** Implements an asynchronous state machine for randomized blinks and saccade-masking.
 * **Efficient Memory Usage:** Pre-loads BMP assets into the display buffer at boot, drastically reducing real-time computational overhead.
-* **Randomized Expression Logic:** Features built-in "look and blink" algorithms to simulate natural, lifelike eye movement.
-* **Expandable Control:** Ready to accept external X/Y coordinates via UART/I2C for active face tracking.
+* **Tracking-Ready:** Built-in UART/I2C listeners to receive $X, Y$ coordinates from the **FaceTracker** module for active eye contact.
 
 ## 🛠️ Hardware Stack
 
 * **Microcontroller:** Raspberry Pi Pico (RP2040).
 * **Displays:** 2x GC9A01 1.28-Inch Round LCD TFT (240x240 resolution).
-* **Communication:** High-speed SPI.
-* **Optional Input:** ESP32-CAM (for providing real-time X/Y coordinates of human faces).
+* **Communication:** High-speed SPI for display data; Serial/UART for tracking data.
+* **Optional Input:** **ESP32-CAM** (The FaceTracker module providing real-time human coordinates).
 
+---
 
+## 🔌 Wiring & Pinout
+
+To drive dual displays on the Pico, we share the SPI bus but use independent Chip Select (CS) pins to maintain high refresh rates.
+
+| Peripheral | Pico Pin | Function | Notes |
+| :--- | :--- | :--- | :--- |
+| **Both LCDs** | GP18 | SCK | Shared Clock |
+| **Both LCDs** | GP19 | MOSI | Shared Data Line |
+| **Left LCD** | GP17 | CS | Left Eye Select |
+| **Right LCD** | GP20 | CS | Right Eye Select |
+| **ESP32-CAM** | GP1 | RX | Receives $X, Y$ tracking data |
+
+---
 
 ## 📐 How It Works
 
 ### The Memory Workaround
-The RP2040 lacks the internal memory to hold multiple full-color 240x240 frames in a standard frame buffer while simultaneously processing complex "Uncanny Eye" math. 
-
-**The Solution:**
-1. **Boot Load:** The processor reads the BMP eye assets and writes them directly to the display's internal controller memory.
-2. **The Window Trick:** Instead of sending 57,600 pixels every frame, the code simply updates the "window" or the specific coordinates where the pupil and eyelid are currently located.
-3. **The Result:** This significantly reduces the amount of data sent over the SPI bus, resulting in a high-speed, flicker-free "blink."
+The RP2040 lacks the RAM to hold multiple full-color frames. To solve this, we use **The Window Trick**: instead of sending 57,600 pixels every frame, the code only updates the specific coordinates where the pupil or eyelid is moving. This results in a high-speed, flicker-free "blink."
 
 ### Interaction & Tracking
-Currently, the eyes move to random positions to give the robot a "thinking" appearance while the head moves. However, the system is designed to interface with an **ESP32-CAM**: 
-* The ESP32-CAM detects a face and calculates the $X, Y$ coordinates.
-* It sends these coordinates to the Pico via Serial.
-* The Pico shifts the pupil "pointer" to match those coordinates.
-* **Outcome:** The robot maintains "eye contact" as you move across the room.
-
-
+When integrated with the **FaceTracker** system:
+1. **Detection:** The ESP32-CAM calculates the face center.
+2. **Transmission:** Coordinates are sent via Serial to the Pico.
+3. **Actuation:** The Pico shifts the pupil "pointer" to the matching $X, Y$ position.
+4. **Outcome:** The robot maintains "eye contact" as you move across the room.
 
 ---
 
-## 🚀 Installation & Usage
+## ⚡ Quick Start
 
 1. **Flash Firmware:** Ensure your Pico is running a stable MicroPython or C++ build.
 2. **Upload Assets:** Transfer the required `.bmp` files (iris, pupil, eyelid) to the Pico's root directory.
-3. **Wiring:** Connect the dual GC9A01 displays via the SPI pins. (Note: They can share the `SCK` and `MOSI` lines but require separate `CS` pins for independent control).
+3. **Wiring:** Connect the dual displays via the SPI pins as shown in the table above.
+4. **Test:** Run the `main.py` script; the eyes should perform a "boot-up" blink and enter random-look mode.
+
+## 🗺️ Future Roadmap
+
+* **Saccade Masking:** Perfectly timing a blink to occur exactly when the eye moves to a new target, hiding the "jump."
+* **Emotional States:** Adding logic to change pupil size or eyelid "droop" based on the robot's simulated mood.
+* **Direct I2C Mapping:** Moving from UART to I2C to allow the Pico and ESP32-CAM to share the same bus as the servos.
 
 ---
 
-## 📜 Documentation
-
-For wiring diagrams and the coordinate-mapping math used for the round display geometry, see the [RoboEyes Docs](./docs) folder.
+<small>© 2026 MatsRobot | Licensed under the [MIT License](https://github.com/MatsRobot/matsrobot.github.io/blob/main/LICENSE)</small>
