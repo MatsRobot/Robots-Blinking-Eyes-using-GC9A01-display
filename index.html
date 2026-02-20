@@ -12,7 +12,8 @@
 
     <style>
         :root {
-            --gh-green: #2ea44f;
+            --gh-green: #238636; /* Darker GitHub Green */
+            --gh-green-hover: #2ea44f;
             --gh-dark: #24292e;
             --gh-blue: #0366d6;
             --gh-border: #eaecef;
@@ -30,7 +31,6 @@
             padding: 2rem; 
         }
 
-        /* Hero Section - Image Sidebar Layout */
         .hero-section {
             display: flex;
             gap: 2.5rem;
@@ -74,17 +74,61 @@
             border-radius: 4px;
         }
 
-        .btn { 
+        /* --- STYLED DOWNLOAD BUTTON --- */
+        .btn-download { 
             background-color: var(--gh-green); 
             color: white; 
-            padding: 12px 24px; 
+            padding: 12px 28px; 
             text-decoration: none; 
             border-radius: 6px; 
-            display: inline-block; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 18px; 
             font-weight: 600;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
+            border: 1px solid rgba(27, 31, 35, 0.15);
+            box-shadow: 0 1px 0 rgba(27, 31, 35, 0.1);
         }
-        .btn:hover { background-color: #2c974b; }
+
+        .btn-download:hover { 
+            background-color: var(--gh-green-hover); 
+        }
+
+        .btn-download:active {
+            transform: translateY(1px);
+        }
+
+        .btn-text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .btn-main {
+            font-size: 1.35rem;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .btn-sub-lines {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: 400;
+            opacity: 0.95;
+            letter-spacing: 0.2px;
+        }
+
+        .download-icon {
+            fill: currentColor;
+            flex-shrink: 0;
+        }
 
         .tech-table {
             width: 100%;
@@ -124,6 +168,7 @@
 
         @media (max-width: 768px) {
             .hero-section, .grid { flex-direction: column; }
+            .btn-download { width: 100%; justify-content: center; box-sizing: border-box; }
         }
     </style>
 </head>
@@ -137,8 +182,17 @@
                 <strong>Memory Workaround:</strong> By converting assets to <code>RGB565</code> (16-bit), we reduce the data payload by 33% per frame compared to standard 24-bit assets, overcoming RP2040 RAM limits.
             </div>
 
-            <a href="https://github.com/MatsRobot/Robots-Blinking-Eyes-using-GC9A01-display" class="btn">
-                Get Full Build Instructions and Project downloads on GitHub
+            <a href="https://github.com/MatsRobot/Robots-Blinking-Eyes-using-GC9A01-display" class="btn-download">
+                <svg class="download-icon" width="32" height="32" viewBox="0 0 24 24">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                <div class="btn-text-container">
+                    <span class="btn-main">Downloads</span>
+                    <div class="btn-sub-lines">
+                        <span>Full Build Instructions and Project</span>
+                        <span>Source-Code on GitHub</span>
+                    </div>
+                </div>
             </a>
         </div>
 
@@ -158,7 +212,7 @@
     </ul>
 
     <h2>Technical Logic & Buffer Management</h2>
-        <p>The system overcomes the RP2040 SPI bus bottlenecks by using two critical optimization techniques:</p>
+    <p>The system overcomes the RP2040 SPI bus bottlenecks by using two critical optimization techniques:</p>
     <ul>
         <li><strong>DMA (Direct Memory Access):</strong> Frees the CPU to calculate pupil math while the DMA controller handles high-speed data transmission to the displays.</li>
         <li><strong>Corner Masking:</strong> Since the GC9A01 is round but driven by a $240 \times 240$ controller, the code skips calculating "corner" pixels, reducing redundant processing by <strong>~21%</strong>.</li>
