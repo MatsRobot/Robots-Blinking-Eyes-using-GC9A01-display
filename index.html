@@ -6,13 +6,13 @@
     <link rel="icon" type="image/png" href="https://matsrobot.github.io/Robots-Blinking-Eyes-using-GC9A01-display/Favicon-192.png" sizes="192x192">
     
     <title>RoboEyes: High-Frame-Rate GC9A01 System | MatsRobot</title>
-    <meta name="description" content="An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040.">
+    <meta name="description" content="An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040. Featuring real-time tracking and autonomous blinking.">
     
     <link rel="canonical" href="https://github.com/MatsRobot/Robots-Blinking-Eyes-using-GC9A01-display" />
 
     <style>
         :root {
-            --gh-green: #238636; /* Darker GitHub Green */
+            --gh-green: #238636;
             --gh-green-hover: #2ea44f;
             --gh-dark: #24292e;
             --gh-blue: #0366d6;
@@ -35,6 +35,7 @@
             display: flex;
             gap: 2.5rem;
             margin-bottom: 2rem;
+            align-items: center;
         }
 
         .hero-text { flex: 3; }
@@ -74,7 +75,6 @@
             border-radius: 4px;
         }
 
-        /* --- STYLED DOWNLOAD BUTTON --- */
         .btn-download { 
             background-color: var(--gh-green); 
             color: white; 
@@ -90,44 +90,25 @@
             box-shadow: 0 1px 0 rgba(27, 31, 35, 0.1);
         }
 
-        .btn-download:hover { 
-            background-color: var(--gh-green-hover); 
-        }
-
-        .btn-download:active {
-            transform: translateY(1px);
-        }
+        .btn-download:hover { background-color: var(--gh-green-hover); }
 
         .btn-text-container {
             display: flex;
             flex-direction: column;
-            align-items: center; 
             line-height: 1.1;
-            text-align: center;
         }
 
         .btn-main {
             font-size: 1.35rem;
-            text-decoration: underline;
-            text-underline-offset: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .btn-sub-lines {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 400;
-            opacity: 0.95;
-            letter-spacing: 0.2px;
-        }
-
-        .download-icon {
-            fill: currentColor;
-            flex-shrink: 0;
+            opacity: 0.9;
         }
 
         .tech-table {
@@ -136,17 +117,12 @@
             margin: 1rem 0;
         }
 
-        .tech-table th { 
-            background-color: var(--gh-bg-gray); 
-            text-align: left; 
-            padding: 12px; 
-            border: 1px solid var(--gh-border);
-        }
-
-        .tech-table td { 
+        .tech-table th, .tech-table td { 
             padding: 12px; 
             border: 1px solid var(--gh-border); 
         }
+
+        .tech-table th { background-color: var(--gh-bg-gray); text-align: left; }
 
         .grid { 
             display: grid; 
@@ -154,8 +130,6 @@
             gap: 2rem; 
             margin-top: 1.5rem; 
         }
-
-        code { background-color: var(--gh-bg-gray); padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; }
 
         footer { 
             margin-top: 4rem; 
@@ -168,6 +142,8 @@
 
         @media (max-width: 768px) {
             .hero-section, .grid { flex-direction: column; }
+            .hero-text { order: 2; }
+            .image-sidebar { order: 1; width: 100%; }
             .btn-download { width: 100%; justify-content: center; box-sizing: border-box; }
         }
     </style>
@@ -176,76 +152,76 @@
 
     <div class="hero-section">
         <div class="hero-text">
-            <h1>🤖 RoboEyes: High-Frame-Rate GC9A01 System</h1>
-            <p>An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040, featuring high-speed pupil tracking and blinking animations.</p>
+            <h1>👁️ RoboEyes: High-Frame-Rate GC9A01 System</h1>
+            <p>An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040. This setup delivers high-speed pupil tracking and lifelike blinking animations without the resource lag of traditional procedural rendering.</p>
+            
             <div class="note">
-                <strong>Memory Workaround:</strong> By converting assets to <code>RGB565</code> (16-bit), we reduce the data payload by 33% per frame compared to standard 24-bit assets, overcoming RP2040 RAM limits.
+                <strong>Memory Trick:</strong> By using a "Window Update" strategy, we only refresh the pixels where movement occurs, reducing SPI bus traffic and achieving fluid motion on the RP2040.
             </div>
 
             <a href="https://github.com/MatsRobot/Robots-Blinking-Eyes-using-GC9A01-display" class="btn-download">
-                <svg class="download-icon" width="32" height="32" viewBox="0 0 24 24">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                 </svg>
                 <div class="btn-text-container">
-                    <span class="btn-main">Downloads</span>
+                    <span class="btn-main">Get Source Code</span>
                     <div class="btn-sub-lines">
-                        <span>Full Build Instructions and Project</span>
-                        <span>Source-Code on GitHub</span>
+                        <span>Pico Firmware & Blinking Eye Assets</span>
                     </div>
                 </div>
             </a>
         </div>
 
         <div class="image-sidebar">
-            <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Hardware Configuration">
-            <span class="caption">Dual GC9A01 Display Setup</span>
+            <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Display View">
+            <span class="caption">Dual GC9A01 1.28" Setup</span>
         </div>
     </div>
 
     <h2>How It Works: The Logic Flow</h2>
-    <p>To achieve lifelike movement on a microcontroller, this system employs a smart buffer manipulation strategy:</p>
+    <p>The system is designed to provide maximum visual fluidity with minimal computational cost:</p>
     <ul>
-        <li><strong>Boot Load:</strong> BMP assets (iris, pupil, eyelid) are written directly to the display's internal controller memory at startup.</li>
-        <li><strong>The Window Trick:</strong> Instead of sending 57,600 pixels every frame, the code updates only the specific coordinates where the pupil or eyelid is moving.</li>
-        <li><strong>Randomized Expression:</strong> Built-in "look and blink" algorithms simulate natural behavior, preventing a static "uncanny" look.</li>
-        <li><strong>Interaction:</strong> Ready to accept external $X, Y$ coordinates via UART for active human face tracking.</li>
+        <li><strong>Boot Load:</strong> BMP assets (iris, pupil, eyelid) are loaded into the display's internal memory at startup.</li>
+        <li><strong>Partial Refresh:</strong> The RP2040 tracks coordinates and updates only the moving parts of the eye.</li>
+        <li><strong>Blink Logic:</strong> An asynchronous timer triggers natural-looking blinks that don't interrupt tracking.</li>
+        <li><strong>Tracking Integration:</strong> Receives external $X, Y$ data from the FaceTracker via UART for active interaction.</li>
     </ul>
-
-    <h2>Technical Logic & Buffer Management</h2>
-    <p>The system overcomes the RP2040 SPI bus bottlenecks by using two critical optimization techniques:</p>
-    <ul>
-        <li><strong>DMA (Direct Memory Access):</strong> Frees the CPU to calculate pupil math while the DMA controller handles high-speed data transmission to the displays.</li>
-        <li><strong>Corner Masking:</strong> Since the GC9A01 is round but driven by a $240 \times 240$ controller, the code skips calculating "corner" pixels, reducing redundant processing by <strong>~21%</strong>.</li>
-    </ul>
-
+    
     <h2>Technical Specifications</h2>
     <table class="tech-table">
         <thead>
-            <tr><th>Component</th><th>Specification / Role</th></tr>
+            <tr><th>Component</th><th>Role & Specification</th></tr>
         </thead>
         <tbody>
             <tr><td><strong>Microcontroller</strong></td><td>Raspberry Pi Pico (RP2040) @ 133MHz</td></tr>
             <tr><td><strong>Displays</strong></td><td>2x GC9A01 1.28" Round LCD (240x240 px)</td></tr>
-            <tr><td><strong>Communication</strong></td><td>High-speed SPI (Shared MOSI/SCK | Dual CS)</td></tr>
+            <tr><td><strong>Protocol</strong></td><td>High-speed SPI (Shared SCK/MOSI)</td></tr>
             <tr><td><strong>Asset Format</strong></td><td>RGB565 16-bit BMP (Optimized Bit-Depth)</td></tr>
-            <tr><td><strong>Tracking Port</strong></td><td>UART/I2C Serial for external XY coordinate input</td></tr>
+            <tr><td><strong>Data Input</strong></td><td>UART/Serial (Ready for ESP32-CAM coords)</td></tr>
         </tbody>
     </table>
 
     <div class="grid">
         <div>
-            <h3>Synchronized Expression</h3>
-            <p>Drives two independent round LCDs simultaneously, ensuring that blinking and pupil movement are perfectly synchronized for a cohesive facial expression.</p>
+            <h3>Synchronized Movement</h3>
+            <p>The system drives two independent round LCDs simultaneously, ensuring that blinking and pupil movement are perfectly synchronized for a cohesive facial expression.</p>
         </div>
         <div>
-            <h3>Edge Tracking Ready</h3>
-            <p>Designed to pair with an ESP32-CAM. The system maintains "eye contact" by shifting the pupil pointer in real-time based on serial face coordinates.</p>
+            <h3>Active Face Tracking</h3>
+            <p>Designed to maintain "eye contact." By pairing this with an ESP32-CAM, the robot follows human movement in real-time across a room.</p>
         </div>
     </div>
 
+    <h2>🗺️ Future Roadmap</h2>
+    <ul>
+        <li><strong>Saccade Masking:</strong> Automating blinks to hide pupil transitions during fast movements.</li>
+        <li><strong>Emotional States:</strong> Dynamically scaling pupil size and eyelid "droop" via Serial commands.</li>
+        <li><strong>PID Smoothing:</strong> Implementing PID logic for the eye transitions to prevent robotic snapping.</li>
+    </ul>
+
     <footer>
         <p>© 2026 MatsRobot - Part of the Open Source Robotics Initiative</p>
-        <p><small>Optimized for Google Search & GitHub Pages Integration</small></p>
+        <p><small>Copyright (c) 2026 | Licensed under the <a href="https://github.com/MatsRobot/matsrobot.github.io/blob/main/LICENSE" style="color: #6a737d;">MIT License</a></small></p>
     </footer>
 
 </body>
