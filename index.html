@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://matsrobot.github.io/Favicon-192.png" sizes="192x192">
     
-    <title>RoboEyes: High-Frame-Rate GC9A01 System | MatsRobot</title>
-    <meta name="description" content="An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040. Featuring real-time tracking and autonomous blinking.">
+    <title>RoboEyes: Dual GC9A01 SPI Animation System | MatsRobot</title>
+    <meta name="description" content="High-frame-rate robotic eye system using RP2040 and dual GC9A01 LCDs. Implements partial window refreshes, asynchronous state machines, and UART telemetry for real-time saccade masking.">
     
     <link rel="canonical" href="https://github.com/MatsRobot/Robots-Blinking-Eyes-using-GC9A01-display" />
 
@@ -111,25 +111,12 @@
             opacity: 0.9;
         }
 
-        .tech-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-
-        .tech-table th, .tech-table td { 
-            padding: 12px; 
-            border: 1px solid var(--gh-border); 
-        }
-
+        .table-container { overflow-x: auto; margin: 1rem 0; }
+        .tech-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .tech-table th, .tech-table td { padding: 12px; border: 1px solid var(--gh-border); }
         .tech-table th { background-color: var(--gh-bg-gray); text-align: left; }
 
-        .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 2rem; 
-            margin-top: 1.5rem; 
-        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem; }
 
         footer { 
             margin-top: 4rem; 
@@ -153,10 +140,10 @@
     <div class="hero-section">
         <div class="hero-text">
             <h1>👁️ RoboEyes: High-Frame-Rate GC9A01 System</h1>
-            <p>An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040. This setup delivers high-speed pupil tracking and lifelike blinking animations without the resource lag of traditional procedural rendering.</p>
+            <p>An optimized visual expression system for robots using dual 1.28-inch round LCDs and an RP2040 micro-architecture. This system utilizes <strong>partial window refreshes</strong> and <strong>asynchronous state machines</strong> to deliver 60FPS pupil tracking without the latency of procedural pixel rendering.</p>
             
             <div class="note">
-                <strong>Memory Trick:</strong> By using a "Window Update" strategy, we only refresh the pixels where movement occurs, reducing SPI bus traffic and achieving fluid motion on the RP2040.
+                <strong>SPI Bus Optimization:</strong> By implementing a "Window Update" strategy, we bypass the need to re-transmit static background data, reducing SPI bus contention and maximizing the RP2040's effective throughput.
             </div>
 
             <a href="https://github.com/MatsRobot/Robots-Blinking-Eyes-using-GC9A01-display" class="btn-download">
@@ -173,50 +160,52 @@
         </div>
 
         <div class="image-sidebar">
-            <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Display View">
-            <span class="caption">Dual GC9A01 1.28" Setup</span>
+            <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Dual GC9A01 LCD Wiring and Animation View">
+            <span class="caption">Dual GC9A01 1.28" High-Speed Setup</span>
         </div>
     </div>
 
     <h2>How It Works: The Logic Flow</h2>
-    <p>The system is designed to provide maximum visual fluidity with minimal computational cost:</p>
+    <p>The firmware architecture focuses on low-latency memory management to maintain visual fluidity:</p>
     <ul>
-        <li><strong>Boot Load:</strong> BMP assets (iris, pupil, eyelid) are loaded into the display's internal memory at startup.</li>
-        <li><strong>Partial Refresh:</strong> The RP2040 tracks coordinates and updates only the moving parts of the eye.</li>
-        <li><strong>Blink Logic:</strong> An asynchronous timer triggers natural-looking blinks that don't interrupt tracking.</li>
-        <li><strong>Tracking Integration:</strong> Receives external $X, Y$ data from the FaceTracker via UART for active interaction.</li>
+        <li><strong>VRAM Mapping:</strong> RGB565 assets (iris, pupil, eyelid) are indexed into the display's internal DDRAM at initialization.</li>
+        <li><strong>Partial Frame Refreshes:</strong> The RP2040 calculates localized bounding boxes for movement, updating only modified pixel clusters.</li>
+        <li><strong>Asynchronous Timers:</strong> Blinking cycles are managed via non-blocking interrupts, preventing frame-drop during pupil tracking.</li>
+        <li><strong>UART Telemetry:</strong> High-speed serial RX enables real-time synchronization with external FaceTracker centroid data.</li>
     </ul>
     
     <h2>Technical Specifications</h2>
-    <table class="tech-table">
-        <thead>
-            <tr><th>Component</th><th>Role & Specification</th></tr>
-        </thead>
-        <tbody>
-            <tr><td><strong>Microcontroller</strong></td><td>Raspberry Pi Pico (RP2040) @ 133MHz</td></tr>
-            <tr><td><strong>Displays</strong></td><td>2x GC9A01 1.28" Round LCD (240x240 px)</td></tr>
-            <tr><td><strong>Protocol</strong></td><td>High-speed SPI (Shared SCK/MOSI)</td></tr>
-            <tr><td><strong>Asset Format</strong></td><td>RGB565 16-bit BMP (Optimized Bit-Depth)</td></tr>
-            <tr><td><strong>Data Input</strong></td><td>UART/Serial (Ready for ESP32-CAM coords)</td></tr>
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table class="tech-table">
+            <thead>
+                <tr><th>Component</th><th>Role & Specification</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Microcontroller</strong></td><td>Raspberry Pi Pico (RP2040) @ 133MHz</td></tr>
+                <tr><td><strong>Display Driver</strong></td><td>2x GC9A01 Round LCD (240x240 px / 1.28")</td></tr>
+                <tr><td><strong>Interface</strong></td><td>Hardware SPI (Dual-CS Configuration)</td></tr>
+                <tr><td><strong>Color Depth</strong></td><td>RGB565 16-bit (Optimized Bit-Depth Assets)</td></tr>
+                <tr><td><strong>Input Protocol</strong></td><td>3.3V UART (Asynchronous Coordinate Stream)</td></tr>
+            </tbody>
+        </table>
+    </div>
 
     <div class="grid">
         <div>
-            <h3>Synchronized Movement</h3>
-            <p>The system drives two independent round LCDs simultaneously, ensuring that blinking and pupil movement are perfectly synchronized for a cohesive facial expression.</p>
+            <h3>Synchronized SPI Logic</h3>
+            <p>The system manages two independent round LCDs by multiplexing the MOSI line with discrete Chip Select (CS) logic, ensuring zero-latency synchronization between the left and right eye states.</p>
         </div>
         <div>
-            <h3>Active Face Tracking</h3>
-            <p>Designed to maintain "eye contact." By pairing this with an ESP32-CAM, the robot follows human movement in real-time across a room.</p>
+            <h3>Active Saccade Masking</h3>
+            <p>Designed to replicate biological eye movements. By pairing with the ESP32-CAM FaceTracker, the system utilizes "Saccade Masking"—triggering blinks during rapid gaze shifts to hide artificial pupil "snapping."</p>
         </div>
     </div>
 
     <h2>🗺️ Future Roadmap</h2>
     <ul>
-        <li><strong>Saccade Masking:</strong> Automating blinks to hide pupil transitions during fast movements.</li>
-        <li><strong>Emotional States:</strong> Dynamically scaling pupil size and eyelid "droop" via Serial commands.</li>
-        <li><strong>PID Smoothing:</strong> Implementing PID logic for the eye transitions to prevent robotic snapping.</li>
+        <li><strong>DMA Buffering:</strong> Implementing Direct Memory Access to offload SPI transmission from the RP2040 cores.</li>
+        <li><strong>Dynamic Pupillary Dilation:</strong> Logic for adjusting pupil diameter in response to ambient light sensors via ADC.</li>
+        <li><strong>PID Smoothing:</strong> Integration of PID control loops for fluid, human-like gaze transitions.</li>
     </ul>
 
     <footer>
