@@ -4,22 +4,20 @@
 
 ---
 
-<table>
-  <tr>
-    <td width="60%">
-      <h2>🚀 The Backstory</h2>
-      <p>
-        Project "Uncanny Eyes" has long been the gold standard for robotic expressions, but it is notoriously resource-heavy. Porting it to the RP2040 often results in sluggish frame rates due to memory constraints.
-      </p>
-      <p>
-        I needed the eyes to look "alive," which requires fluid motion and instant response. By moving away from real-time procedural rendering and toward a <b>smart buffer manipulation</b> strategy, I achieved smooth, high-speed movement that rivals much more powerful processors.
-      </p>
-    </td>
-    <td width="40%">
-      <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Project View" />
-    </td>
-  </tr>
-</table>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+  <div style="flex: 1; min-width: 300px;">
+    <h2>🚀 The Backstory</h2>
+    <p>
+      Project "Uncanny Eyes" has long been the gold standard for robotic expressions, but it is notoriously resource-heavy. Porting it to the RP2040 often results in sluggish frame rates due to memory constraints.
+    </p>
+    <p>
+      I needed the eyes to look "alive," which requires fluid motion and instant response. By moving away from real-time procedural rendering and toward a <b>smart buffer manipulation</b> strategy, I achieved smooth, high-speed movement that rivals much more powerful processors.
+    </p>
+  </div>
+  <div style="flex: 1; min-width: 300px; text-align: center;">
+    <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Project View" style="max-width: 100%; height: auto;" />
+  </div>
+</div>
 
 ---
 
