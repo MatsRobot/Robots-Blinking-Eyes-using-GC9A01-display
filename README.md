@@ -1,25 +1,25 @@
-# 👁️ RoboEyes: High-Frame-Rate Blinking System
+# 👁️ RoboEyes: High-Frame-Rate GC9A01 SPI System
 
-**RoboEyes** is a high-speed visual expression system. By pairing a **Raspberry Pi Pico (RP2040)** with dual **GC9A01 round LCDs**, it creates lifelike eye movement and autonomous blinking that bridges the gap between a machine and a face.
+**RoboEyes** is a high-speed, low-latency visual expression system for robotics. By leveraging the **RP2040’s dual-core architecture** and dual **GC9A01 round LCDs**, it implements complex ocular movements, including **partial window refreshes** and **asynchronous blinking state machines**.
 
 ---
 
 <table width="100%">
   <tr>
     <td width="60%" align="left" valign="middle">
-      <h2>🚀 The Backstory</h2>
+      <h2>🚀 Engineering Challenge: Memory Optimization</h2>
     </td>
     <td width="40%" align="center" valign="middle">
-      <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Project View" width="250" style="border-radius: 8px;" />
+      <img src="https://github.com/user-attachments/assets/d4d73b5c-27c2-40ac-8f5b-01d5ba31416f" alt="RoboEyes Dual Display Hardware Interface" width="250" style="border-radius: 8px;" />
     </td>
   </tr>
   <tr>
     <td colspan="2">
       <p>
-        Project "Uncanny Eyes" has long been the gold standard for robotic expressions, but it is notoriously resource-heavy. Porting it to the RP2040 often results in sluggish frame rates due to memory constraints.
+        Standard procedural rendering (like the classic "Uncanny Eyes") is notoriously resource-heavy, often bottlenecking the RP2040's limited SRAM.
       </p>
       <p>
-        I needed the eyes to look "alive," which requires fluid motion and instant response. By moving away from real-time procedural rendering and toward a <b>smart buffer manipulation</b> strategy, I achieved smooth, high-speed movement that rivals much more powerful processors.
+        This project overcomes these constraints by shifting from procedural math to <b>Smart Buffer Manipulation</b>. By utilizing high-speed SPI and targeted window updates, the system delivers lifelike, 60FPS fluid motion that rivals much more powerful processors, while leaving CPU cycles free for UART telemetry handling.
       </p>
     </td>
   </tr>
@@ -27,63 +27,65 @@
 
 ---
 
-## ✨ Key Features
+## ✨ Key Technical Features
 
-* **High-Speed Animation:** Uses a "Buffer-Pointer" technique to move pupils without re-drawing the entire frame, overcoming RP2040 RAM limits.
-* **Dual-Display Synchronization:** Drives two GC9A01 round LCDs simultaneously for a cohesive, synchronized facial expression.
-* **Natural Blinking Logic:** Implements an asynchronous state machine for randomized blinks and saccade-masking.
-* **Efficient Memory Usage:** Pre-loads BMP assets into the display buffer at boot, drastically reducing real-time computational overhead.
-* **Tracking-Ready:** Built-in UART/I2C listeners to receive $X, Y$ coordinates from the **FaceTracker** module for active eye contact.
+* **Partial Refresh Logic:** Updates only the <b>active pixel regions</b> of the GC9A01 display, drastically reducing SPI bus congestion.
+* **Dual-CS Synchronization:** Drives two independent displays over a shared SPI bus using optimized Chip Select multiplexing.
+* **Asynchronous State Machine:** Manages randomized blinking and <b>saccade-masking</b> via non-blocking timers.
+* **RGB565 Asset Pipeline:** Pre-loads 16-bit BMP assets into local storage for immediate access during tracking interrupts.
+* **UART Telemetry Integration:** Ready-to-use serial listener designed to map <b>centroid coordinates</b> from the ESP32-CAM FaceTracker.
 
 ## 🛠️ Hardware Stack
 
-* **Microcontroller:** Raspberry Pi Pico (RP2040).
-* **Displays:** 2x GC9A01 1.28-Inch Round LCD TFT (240x240 resolution).
-* **Communication:** High-speed SPI for display data; Serial/UART for tracking data.
-* **Optional Input:** **ESP32-CAM** (The FaceTracker module providing real-time human coordinates).
+* **MCU:** Raspberry Pi Pico (RP2040) @ 133MHz.
+* **Display Hardware:** 2x GC9A01 1.28-Inch Round LCD TFT (240x240 resolution).
+* **Communication:** High-speed Hardware SPI for video; 3.3V UART for coordinate input.
+* **Co-Processor (Optional):** **ESP32-CAM** providing real-time human tracking coordinates.
 
 ---
 
-## 🔌 Wiring & Pinout
+## 🔌 Wiring & Pinout (Dual-SPI)
 
-To drive dual displays on the Pico, we share the SPI bus but use independent Chip Select (CS) pins to maintain high refresh rates.
+To maximize frame rates, the displays share the Clock (SCK) and Data (MOSI) lines while using independent CS pins to manage bus contention.
 
-| Peripheral | Pico Pin | Function | Notes |
+| Peripheral | Pico Pin | Function | Logic Level |
 | :--- | :--- | :--- | :--- |
-| **Both LCDs** | GP18 | SCK | Shared Clock |
-| **Both LCDs** | GP19 | MOSI | Shared Data Line |
-| **Left LCD** | GP17 | CS | Left Eye Select |
-| **Right LCD** | GP20 | CS | Right Eye Select |
-| **ESP32-CAM** | GP1 | RX | Receives $X, Y$ tracking data |
+| **Global SPI** | GP18 | SCK | 3.3V Clock |
+| **Global SPI** | GP19 | MOSI | 3.3V Data |
+| **Left LCD** | GP17 | CS | Chip Select L |
+| **Right LCD** | GP20 | CS | Chip Select R |
+| **Telemetry RX** | GP1 | UART RX | 3.3V Serial |
 
 ---
 
-## 📐 How It Works
+## 📐 Logic & Data Flow
 
-### The Memory Workaround
-The RP2040 lacks the RAM to hold multiple full-color frames. To solve this, we use **The Window Trick**: instead of sending 57,600 pixels every frame, the code only updates the specific coordinates where the pupil or eyelid is moving. This results in a high-speed, flicker-free "blink."
+### The Window Refresh Strategy
+The RP2040 lacks the memory to buffer a full 57,600-pixel frame in 16-bit color. This system solves the bottleneck by defining **Dynamic Clipping Windows**:
+1. Only the bounding box of the moving pupil is calculated.
+2. The SPI controller is pointed to those specific coordinates.
+3. Only the "delta" pixels are transmitted, bypassing the static iris/sclera data.
 
-### Interaction & Tracking
-When integrated with the **FaceTracker** system:
-1. **Detection:** The ESP32-CAM calculates the face center.
-2. **Transmission:** Coordinates are sent via Serial to the Pico.
-3. **Actuation:** The Pico shifts the pupil "pointer" to the matching $X, Y$ position.
-4. **Outcome:** The robot maintains "eye contact" as you move across the room.
+### Centroid Tracking Loop
+1. **Reception:** UART receives $X, Y$ centroid data from the FaceTracker.
+2. **Mapping:** The Pico translates world-space coordinates into the 240x240 pixel space of the GC9A01.
+3. **Synchronization:** Both displays update their pupil offsets simultaneously via the shared bus.
+4. **Outcome:** The robot maintains constant, human-like eye contact.
 
 ---
 
 ## ⚡ Quick Start
 
-1. **Flash Firmware:** Ensure your Pico is running a stable MicroPython or C++ build.
-2. **Upload Assets:** Transfer the required `.bmp` files (iris, pupil, eyelid) to the Pico's root directory.
-3. **Wiring:** Connect the dual displays via the SPI pins as shown in the table above.
-4. **Test:** Run the `main.py` script; the eyes should perform a "boot-up" blink and enter random-look mode.
+1. **Firmware:** Flash the Pico with the provided build (Optimized for SPI throughput).
+2. **Assets:** Transfer `.bmp` assets (pupil, iris, eyelid) to the onboard flash.
+3. **Calibration:** Configure the `eye_config.h` file to set your default pupil travel limits.
+4. **Deployment:** Power via a stable 3.3V/5V rail and initiate the UART link.
 
 ## 🗺️ Future Roadmap
 
-* **Saccade Masking:** Perfectly timing a blink to occur exactly when the eye moves to a new target, hiding the "jump."
-* **Emotional States:** Adding logic to change pupil size or eyelid "droop" based on the robot's simulated mood.
-* **Direct I2C Mapping:** Moving from UART to I2C to allow the Pico and ESP32-CAM to share the same bus as the servos.
+* **DMA SPI Transfer:** Freeing up both RP2040 cores during data transmission.
+* **Interactive Mood Logic:** Adjusting eyelid "droop" and pupillary dilation via HTTP/JSON commands.
+* **I2C Bus Consolidation:** Migrating UART telemetry to a shared I2C bus with the servo controller.
 
 ---
 
