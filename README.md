@@ -10,7 +10,7 @@
       <h2>🚀 Engineering Challenge: Memory Optimization</h2>
     </td>
     <td width="40%" align="center" valign="middle">
-      <img src="https://github.com/user-attachments/assets/edc557cf-b2e4-461e-ba24-1c3619512123" alt="RoboEyes Dual Display Hardware Interface" width="250" style="border-radius: 8px;" />
+      <img src="https://raw.githubusercontent.com/MatsRobot/Robots-Blinking-Eyes-using-GC9A01-display/main/Blink3.gif" alt="RoboEyes Dual Display Hardware Interface" width="250" style="border-radius: 8px;" />
     </td>
   </tr>
   <tr>
